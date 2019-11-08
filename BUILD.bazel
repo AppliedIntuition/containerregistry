@@ -16,11 +16,11 @@ package(default_visibility = ["//visibility:public"])
 py_library(
     name = "containerregistry",
     srcs = glob([
-        "__init__.py",
-        "client/**/*.py",
-        "tools/**/*.py",
-        "transform/**/*.py",
-        "transport/**/*.py",
+        "containerregistry/__init__.py",
+        "containerregistry/client/**/*.py",
+        "containerregistry/tools/**/*.py",
+        "containerregistry/transform/**/*.py",
+        "containerregistry/transport/**/*.py",
     ]),
     deps = [
         "@concurrent//:concurrent",
