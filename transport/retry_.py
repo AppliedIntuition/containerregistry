@@ -23,6 +23,7 @@ from containerregistry.transport import nested
 import httplib2
 import six.moves.http_client
 
+_LOGGER = logging.getLogger('containerregistry.transport.retry')
 DEFAULT_SOURCE_TRANSPORT_CALLABLE = httplib2.Http
 DEFAULT_MAX_RETRIES = 2
 DEFAULT_BACKOFF_FACTOR = 0.5
@@ -103,7 +104,7 @@ class RetryTransport(nested.NestedTransport):
         if retries >= self._max_retries or not self._should_retry(err):
           raise
 
-        logging.error('Retrying after exception %s.', err)
+        _LOGGER.error('Retrying after exception %s.', err)
         retries += 1
         time.sleep(self._backoff_factor * (2**retries))
         continue
