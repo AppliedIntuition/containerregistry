@@ -33,6 +33,8 @@ from containerregistry.client.v1 import docker_image
 import httplib2
 import six.moves.http_client
 
+_LOGGER = logging.getLogger('containerregistry.client.docker_session')
+
 
 class Push(object):
   """Push encapsulates a go/docker:push session."""
@@ -83,7 +85,7 @@ class Push(object):
     # TODO(user): Consider also supporting cookies, which are
     # used by Quay.io for authenticated sessions.
 
-    logging.info('Initiated upload of: %s', self._name)
+    _LOGGER.info('Initiated upload of: %s', self._name)
     return self
 
   def _exists(self, layer_id):
@@ -138,7 +140,7 @@ class Push(object):
                   layer_id):
     """Upload a single layer, after checking whether it exists already."""
     if self._exists(layer_id):
-      logging.info('Layer %s exists, skipping', layer_id)
+      _LOGGER.info('Layer %s exists, skipping', layer_id)
       return
 
     # TODO(user): This ordering is consistent with the docker client,
@@ -148,7 +150,7 @@ class Push(object):
     self._put_json(image, layer_id)
     self._put_layer(image, layer_id)
     self._put_checksum(image, layer_id)
-    logging.info('Layer %s pushed.', layer_id)
+    _LOGGER.info('Layer %s pushed.', layer_id)
 
   def upload(self, image):
     """Upload the layers of the given image.
@@ -187,7 +189,7 @@ class Push(object):
 
   def __exit__(self, exception_type, unused_value, unused_traceback):
     if exception_type:
-      logging.error('Error during upload of: %s', self._name)
+      _LOGGER.error('Error during upload of: %s', self._name)
       return
 
     # This should complete the upload by issuing:
@@ -199,4 +201,4 @@ class Push(object):
     # to complete the transaction, with basic auth talking to registry.
     self._put_images()
 
-    logging.info('Finished upload of: %s', self._name)
+    _LOGGER.info('Finished upload of: %s', self._name)

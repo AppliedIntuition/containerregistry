@@ -31,6 +31,8 @@ import httplib2
 import six.moves.http_client
 import six.moves.urllib.parse
 
+_LOGGER = logging.getLogger('containerregistry.client.docker_session')
+
 
 def _tag_or_digest(name):
   if isinstance(name, docker_name.Tag):
@@ -141,7 +143,7 @@ class Push(object):
     mounted, location = self._start_upload(digest, self._mount)
 
     if mounted:
-      logging.info('Layer %s mounted.', digest)
+      _LOGGER.info('Layer %s mounted.', digest)
       return
 
     location = self._add_digest(location, digest)
@@ -157,7 +159,7 @@ class Push(object):
     mounted, location = self._start_upload(digest, self._mount)
 
     if mounted:
-      logging.info('Layer %s mounted.', digest)
+      _LOGGER.info('Layer %s mounted.', digest)
       return
 
     location = self._get_absolute_url(location)
@@ -277,11 +279,11 @@ class Push(object):
   def _upload_one(self, image, digest):
     """Upload a single layer, after checking whether it exists already."""
     if self._blob_exists(digest):
-      logging.info('Layer %s exists, skipping', digest)
+      _LOGGER.info('Layer %s exists, skipping', digest)
       return
 
     self._put_blob(image, digest)
-    logging.info('Layer %s pushed.', digest)
+    _LOGGER.info('Layer %s pushed.', digest)
 
   def upload(self,
              image,
@@ -297,11 +299,11 @@ class Push(object):
     if self._manifest_exists(image):
       if isinstance(self._name, docker_name.Tag):
         if self._remote_tag_digest(image) == image.digest():
-          logging.info('Tag points to the right manifest, skipping push.')
+          _LOGGER.info('Tag points to the right manifest, skipping push.')
           return
-        logging.info('Manifest exists, skipping blob uploads and pushing tag.')
+        _LOGGER.info('Manifest exists, skipping blob uploads and pushing tag.')
       else:
-        logging.info('Manifest exists, skipping upload.')
+        _LOGGER.info('Manifest exists, skipping upload.')
     elif isinstance(image, image_list.DockerImageList):
       for _, child in image:
         # TODO(user): Refactor so that the threadpool is shared.
@@ -329,9 +331,9 @@ class Push(object):
 
   def __exit__(self, exception_type, unused_value, unused_traceback):
     if exception_type:
-      logging.error('Error during upload of: %s', self._name)
+      _LOGGER.error('Error during upload of: %s', self._name)
       return
-    logging.info('Finished upload of: %s', self._name)
+    _LOGGER.info('Finished upload of: %s', self._name)
 
 
 # pylint: disable=invalid-name
